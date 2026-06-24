@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Solaris_OS v1.3.0</title>
+    <style>
+        :root { --g-s: rgba(12, 12, 18, 0.98); --brd: rgba(255, 255, 255, 0.1); --blue: #0088ff; --red: #ff4d4d; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; color: #fff; }
+        body { background: #000; overflow: hidden; height: 100vh; width: 100vw; }
+
+        /* oooooooo */
+        #power-layer { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; justify-content: center; align-items: center; }
+        #startup-layer { position: fixed; inset: 0; background: #000; z-index: 9999; display: none; justify-content: center; align-items: center; }
+        #desktop-layer { position: fixed; inset: 0; display: none; z-index: 10; background: radial-gradient(circle at center, #111 0%, #000 100%); }
+        #void-layer { position: fixed; inset: 0; background: #000; z-index: 10001; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+
+        /* solaras */
+        .s-con { display: flex; align-items: center; gap: 0; transition: all 6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .s-con.active { gap: 30px; }
+        .s-txt { font-size: 2.5rem; font-weight: 200; letter-spacing: 15px; width: 0; opacity: 0; overflow: hidden; white-space: nowrap; transition: width 6s cubic-bezier(0.16, 1, 0.3, 1), opacity 3s; }
+        .s-txt.show { width: 500px; opacity: 1; }
+
+        /* i dont even remember now... */
+        .win { 
+            position: absolute; background: var(--g-s); border: 1px solid var(--brd); border-radius: 12px; 
+            backdrop-filter: blur(20px); z-index: 100; display: none; flex-direction: column; overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7); animation: winPop 0.3s ease-out;
+        }
+        .win.maximized { inset: 0 !important; width: 100% !important; height: calc(100vh - 50px) !important; border-radius: 0; }
+        @keyframes winPop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .w-h { padding: 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--brd); cursor: move; background: rgba(255,255,255,0.03); }
+        .w-ctrl { display: flex; gap: 8px; }
+        .btn-c { width: 12px; height: 12px; border-radius: 50%; border: none; cursor: pointer; }
+
+        /* GRID and iconS */
+        .i-grid { padding: 30px; display: grid; grid-template-columns: repeat(auto-fill, 100px); gap: 20px; }
+        .a-i { display: flex; flex-direction: column; align-items: center; cursor: pointer; text-align: center; transition: 0.2s; }
+        .a-i:hover { transform: translateY(-5px); }
+        .a-i span { font-size: 11px; margin-top: 8px; opacity: 0.8; }
+
+        /* TASKBAR */
+        .t-b { position: fixed; bottom: 0; width: 100%; height: 50px; z-index: 1000; background: rgba(0,0,0,0.95); display: flex; align-items: center; padding: 0 15px; border-top: 1px solid var(--brd); }
+        #s-m { position: absolute; bottom: 60px; left: 15px; width: 220px; background: var(--g-s); border: 1px solid var(--brd); border-radius: 10px; display: none; flex-direction: column; padding: 10px; z-index: 2000; }
+        .m-l { padding: 12px; border-radius: 6px; cursor: pointer; font-size: 13px; transition: 0.2s; }
+        .m-l:hover { background: rgba(255,255,255,0.1); }
+
+        /* app and,.................*/
+        .btn-sol { width: 100%; padding: 10px; background: rgba(255,255,255,0.06); border: 1px solid var(--brd); border-radius: 6px; cursor: pointer; margin-top: 8px; font-size: 12px; color: #fff; }
+        .btn-sol:hover { background: rgba(255,255,255,0.12); }
+        
+        .p-box { position: relative; height: 150px; background: rgba(0,0,0,0.4); border-radius: 8px; overflow: hidden; margin: 10px 0; border: 1px solid var(--brd); }
+        .core-ball { width: 70px; height: 70px; background: var(--blue); border-radius: 50%; margin: 40px auto; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; box-shadow: 0 0 20px rgba(0,136,255,0.4); transition: 0.1s; }
+        .core-ball:active { transform: scale(0.9); }
+
+        /* coughS */
+        .shake { animation: shakeAnim 0.1s infinite !important; }
+        @keyframes shakeAnim { 0% { transform: translate(2px, 2px); } 50% { transform: translate(-3px, -2px); } 100% { transform: translate(2px, 2px); } }
+        .void-txt { font-family: monospace; font-size: 1.1rem; opacity: 0; transition: 1.5s; margin: 12px; color: #fff; }
+    </style>
+</head>
+<body id="main-body">
+
+    <div id="power-layer">
+        <button class="btn-sol" style="width:160px; height:60px; font-size:1.1rem; font-weight:bold;" onclick="startBoot()">TURN ON</button>
+    </div>
+
+    <div id="startup-layer">
+        <div class="s-con" id="s-con">
+            <svg width="100" height="100" viewBox="0 0 200 200"><circle cx="100" cy="100" r="45" fill="white"/><ellipse cx="100" cy="100" rx="90" ry="30" stroke="white" fill="none" stroke-width="8"/></svg>
+            <div id="s-txt" class="s-txt">SOLARIS_OS</div>
+        </div>
+    </div>
+
+    <div id="void-layer">
+        <div id="void-content"></div>
+        <button id="void-restart-btn" class="btn-sol" style="width:140px; display:none; margin-top:40px;" onclick="resetFromVoid()">START</button>
+    </div>
+
+    <div id="desktop-layer">
+        <div class="i-grid">
+            <div class="a-i" onclick="openW('win-core')">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#0088ff" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/></svg>
+                <span>PRC CORE</span>
+            </div>
+            <div class="a-i" onclick="openW('win-quiz')">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/></svg>
+                <span>Solaris Quiz</span>
+            </div>
+            <div class="a-i" onclick="openW('win-calc')">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 12h8"/></svg>
+                <span>Calculator</span>
+            </div>
+            <div class="a-i" onclick="openW('win-forecast')">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M12 2v2M4.93 4.93l1.41 1.41M2 12h2"/></svg>
+                <span>core boom kaboom</span>
+            </div>
+            <div class="a-i" onclick="showBSOD()">
+                <svg width="40" height="40" viewBox="0 0 200 200"><circle cx="100" cy="100" r="40" fill="#ff4d4d"/><ellipse cx="100" cy="100" rx="80" ry="25" stroke="#ff4d4d" fill="none" stroke-width="10"/></svg>
+                <span style="color:#ff4d4d">Solaras</span>
+            </div>
+        </div>
+
+        <div id="win-core" class="win" style="width: 320px; top: 40px; left: 40px;">
+            <div class="w-h"><span>PRC CORE</span><div class="w-ctrl"><button class="btn-c" style="background:#ffbd2e" onclick="maxW('win-core')"></button><button class="btn-c" style="background:var(--red)" onclick="closeW('win-core')"></button></div></div>
+            <div style="padding:15px; text-align:center;">
+                <h1 id="pts">0</h1>
+                <div class="p-box"><div class="core-ball" onmousedown="clickCore()">CORE</div></div>
+                <button class="btn-sol" onclick="buyC()">Upgrade Click (<span id="cost-c">10</span>)</button>
+                <button class="btn-sol" onclick="buyA()">Auto Clicker (<span id="cost-a">50</span>)</button>
+            </div>
+        </div>
+
+        <div id="win-quiz" class="win" style="width: 350px; top: 80px; left: 100px;">
+            <div class="w-h"><span>Quiz Station</span><button class="btn-c" style="background:var(--red)" onclick="closeW('win-quiz')"></button></div>
+            <div id="quiz-body" style="padding:20px; text-align:center;"></div>
+        </div>
+
+        <div id="win-calc" class="win" style="width: 220px; top: 200px; left: 450px;">
+            <div class="w-h"><span>Calculator</span><button class="btn-c" style="background:var(--red)" onclick="closeW('win-calc')"></button></div>
+            <div style="padding:15px;">
+                <div id="c-scr" style="background:#000; padding:12px; text-align:right; border-radius:6px; margin-bottom:10px;">0</div>
+                <button class="btn-sol" onclick="calcSet('67')">67 muehehhehe</button>
+                <button class="btn-sol" style="background:#fff; color:#000;" onclick="calcSet('=')">EXECUTE</button>
+            </div>
+        </div>
+
+        <div id="win-forecast" class="win" style="width: 280px; top: 50px; left: 450px;">
+            <div class="w-h"><span>Forecast</span><button class="btn-c" style="background:var(--red)" onclick="closeW('win-forecast')"></button></div>
+            <div style="padding:20px; text-align:center;">
+                <p style="font-size:10px; opacity:0.6;">will the reactor explode next time u play acg?</p>
+                <h3 id="f-res" style="margin:15px 0;">---</h3>
+                <button class="btn-sol" onclick="runScan()">SCAN</button>
+            </div>
+        </div>
+
+        <div id="win-soul" class="win" style="width: 280px; top: 150px; left: 150px; z-index: 5000;">
+            <div style="padding:20px; text-align:center;">
+                <p>BY ACCESSING YOUR ACCOUNT YOU GIVE US YOUR SOUL. AGREE?</p>
+                <button class="btn-sol" onclick="triggerLore()">YES I AGREE</button>
+            </div>
+        </div>
+        <div id="win-block" class="win" style="width: 240px; top: 200px; left: 200px; z-index: 5005;">
+            <div style="padding:20px; text-align:center;">
+                <h4 style="color:var(--red)">ACTION NOT PERMITTED.</h4>
+                <button class="btn-sol" onclick="closeW('win-block')">CLOSE</button>
+            </div>
+        </div>
+
+        <div class="t-b">
+            <div style="display:flex; align-items:center; cursor:pointer;" onclick="toggleMenu()">
+                <svg width="25" height="25" viewBox="0 0 200 200"><circle cx="100" cy="100" r="45" fill="white"/><ellipse cx="100" cy="100" rx="90" ry="30" stroke="white" fill="none" stroke-width="12"/></svg>
+                <span style="margin-left:10px; font-weight:bold; font-size:12px; letter-spacing: 1px;"></span>
+            </div>
+            <div id="clk" style="margin-left:auto; font-size:12px; opacity:0.8;">00:00</div>
+        </div>
+
+        <div id="s-m">
+            <div class="m-l" onclick="handleAccount()">Account</div>
+            <div class="m-l" onclick="location.reload()">Restart</div>
+            <div class="m-l" style="color:var(--red)" onclick="showBSOD()">Shutdown</div>
+        </div>
+    </div>
+
+    <div id="bsod" style="display:none; position:fixed; inset:0; background:#004fb0; z-index:11000; flex-direction:column; justify-content:center; align-items:center;">
+        <h1 style="font-size:5rem;">:(</h1><p style="margin-top:20px;">LOL GOT SOLARAS</p>
+    </div>
+
+    <script>
+        let pts = 0, cp = 1, ap = 0, costC = 10, costA = 50;
+        let soulLevel = parseInt(localStorage.getItem('soulLevel')) || 0;
+
+        // solaras logo
+        function startBoot() {
+            document.getElementById('power-layer').style.display = 'none';
+            const sl = document.getElementById('startup-layer');
+            const con = document.getElementById('s-con');
+            const txt = document.getElementById('s-txt');
+            
+            sl.style.display = 'flex';
+            sl.style.opacity = '1';
+            con.classList.remove('active');
+            txt.classList.remove('show');
+
+            setTimeout(() => { con.classList.add('active'); txt.classList.add('show'); }, 500);
+            setTimeout(() => {
+                sl.style.opacity = '0';
+                setTimeout(() => { 
+                    sl.style.display = 'none'; 
+                    document.getElementById('desktop-layer').style.display = 'block'; 
+                    initSystem(); 
+                }, 1000);
+            }, 7000);
+        }
+
+        function initSystem() {
+            setInterval(() => {
+                document.getElementById('clk').innerText = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                pts += ap; updateUI();
+            }, 1000);
+            renderQuiz();
+            makeDraggable();
+        }
+
+        // windows LOGIC WOWOWOWOWOWOO
+        function openW(id) { document.getElementById(id).style.display = 'flex'; toggleMenu(false); }
+        function closeW(id) { document.getElementById(id).style.display = 'none'; }
+        function maxW(id) { document.getElementById(id).classList.toggle('maximized'); }
+        function toggleMenu(f) { 
+            const m = document.getElementById('s-m'); 
+            m.style.display = (f === false) ? 'none' : (m.style.display === 'flex' ? 'none' : 'flex'); 
+        }
+
+        // PRC CORE
+        function clickCore() { pts += cp; updateUI(); }
+        function buyC() { if(pts>=costC){ pts-=costC; cp++; costC*=2; updateUI(); } }
+        function buyA() { if(pts>=costA){ pts-=costA; ap++; costA*=3; updateUI(); } }
+        function updateUI() {
+            document.getElementById('pts').innerText = Math.floor(pts);
+            document.getElementById('cost-c').innerText = costC;
+            document.getElementById('cost-a').innerText = costA;
+        }
+
+        // APPS EXTRAS
+        function calcSet(v) { document.getElementById('c-scr').innerText = (v === '=') ? "what blud doing?" : v; }
+        function runScan() { const r = document.getElementById('f-res'); r.innerText = "SCANNING..."; setTimeout(() => r.innerText = "99% CRITICAL RISK", 1500); }
+        function showBSOD() { document.getElementById('bsod').style.display = 'flex'; }
+
+        // QUIZ SYSTEM
+        let qIdx = 0;
+        const quizData = [
+            { q: "When ACG v0.6?", a: ["Jan 2", "Dec 30"], c: 0 },
+            { q: "9+11?", a: ["19", "21"], c: -1 }, // Trigger de tremor
+            { q: "Who is Solaris Creator?", a: ["Juusto", "Robert"], c: 0 }
+        ];
+        function renderQuiz() {
+            const b = document.getElementById('quiz-body'); const d = quizData[qIdx];
+            if(!d){ b.innerHTML = "<h2>WINNER</h2>"; return; }
+            b.innerHTML = `<p style='margin-bottom:15px'>${d.q}</p>` + d.a.map((ans, i) => `<button class="btn-sol" onclick="checkQuiz(${i})">${ans}</button>`).join('');
+        }
+        function checkQuiz(i) {
+            if(qIdx === 1) {
+                document.getElementById('desktop-layer').classList.add('shake');
+                setTimeout(() => { document.getElementById('desktop-layer').classList.remove('shake'); qIdx++; renderQuiz(); }, 1200);
+                return;
+            }
+            if(i === quizData[qIdx].c) { qIdx++; renderQuiz(); } else { qIdx = 0; renderQuiz(); }
+        }
+
+        // bleh
+        function handleAccount() {
+            if(soulLevel >= 2) openW('win-block'); else openW('win-soul');
+        }
+
+        async function triggerLore() {
+            closeW('win-soul');
+            soulLevel++;
+            localStorage.setItem('soulLevel', soulLevel);
+            
+            document.getElementById('desktop-layer').classList.add('shake');
+            await new Promise(r => setTimeout(r, 2000));
+            
+            // Para de tremer e fica preto
+            document.getElementById('desktop-layer').classList.remove('shake');
+            document.getElementById('desktop-layer').style.display = 'none';
+            
+            const vl = document.getElementById('void-layer');
+            const vc = document.getElementById('void-content');
+            vl.style.display = 'flex';
+            vc.innerHTML = "";
+            document.getElementById('void-restart-btn').style.display = 'none';
+
+            let lines = (soulLevel === 1) ? 
+                ["what did you do?", "again you are here. but now...not from the reactor explosion?", "i wouldnt trust solaris...", "they really have something hidden from us...", "i give you a chance to restart again, as always. try not to fall."] :
+                ["again... i see", "i only recommend you trying to get out.", "at thought is not possible...", "second time... dont trust them", "i will always give you a chance to restart."];
+
+            for(let text of lines) {
+                let p = document.createElement('p'); p.className = 'void-txt'; p.innerText = text;
+                vc.appendChild(p); setTimeout(() => p.style.opacity = '1', 100);
+                await new Promise(r => setTimeout(r, 3500));
+            }
+            document.getElementById('void-restart-btn').style.display = 'block';
+        }
+
+        function resetFromVoid() {
+            document.getElementById('void-layer').style.display = 'none';
+            startBoot(); 
+        }
+
+        // windows cool thingy fuction
+        function makeDraggable() {
+            document.querySelectorAll('.win').forEach(win => {
+                const h = win.querySelector('.w-h'); if(!h) return;
+                h.onmousedown = (e) => {
+                    if(win.classList.contains('maximized')) return;
+                    let ox = e.clientX - win.offsetLeft, oy = e.clientY - win.offsetTop;
+                    document.onmousemove = (e) => { win.style.left = (e.clientX-ox)+'px'; win.style.top = (e.clientY-oy)+'px'; };
+                    document.onmouseup = () => { document.onmousemove = null; };
+                };
+            });
+        }
+    </script>
+</body>
+</html>
