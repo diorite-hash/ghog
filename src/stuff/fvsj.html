@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exposing a Pedo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="https://media.discordapp.net/attachments/1477462085993500896/1477706244125884648/ab34a8ec-4b74-4735-82f7-1bf63cbdefdc.jpg?ex=69a5bcaf&is=69a46b2f&hm=52568c5117a17b6736a392bae579b61f9c882baaad440d1b28ecb0bd79ffa912&=&format=webp&width=545&height=545">
+    
+    <style>
+        :root {
+    --bg: #050000;
+    --card-bg: #0a0a0a;
+    --accent: #ff0000;
+    --text-white: #ffffff;
+    --glass: rgba(255, 0, 0, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background-color: var(--bg);
+    color: var(--text-white);
+    font-family: 'Inter', sans-serif;
+    background-image: radial-gradient(circle at center, #150000 0%, #050000 100%);
+}
+
+#warning-gate {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    transition: transform 0.8s cubic-bezier(0.8, 0, 0.2, 1);
+    text-align: center;
+}
+
+#warning-gate h2 { font-size: 3rem; letter-spacing: 10px; color: var(--accent); font-weight: 900; }
+.enter-btn {
+    background: none; border: 1px solid var(--accent); color: var(--accent);
+    padding: 15px 50px; font-weight: 900; letter-spacing: 4px; cursor: pointer; transition: 0.3s;
+    margin-top: 20px;
+}
+.enter-btn:hover { background: var(--accent); color: #000; box-shadow: 0 0 30px var(--accent); }
+
+header { 
+    min-height: 80vh; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    text-align: center;
+    padding: 100px 20px;
+    width: 100%;
+    position: relative;
+}
+
+.main-title { 
+    font-size: clamp(4rem, 18vw, 12rem); 
+    font-weight: 900; 
+    line-height: 0.8; 
+    letter-spacing: -4px; 
+    text-transform: uppercase; 
+}
+
+.title-white { color: #ffffff; }
+.title-red { 
+    color: var(--accent); 
+    text-shadow: 0 0 10px var(--accent), 0 0 40px var(--accent); 
+}
+
+.sub-description { 
+    margin-top: 30px; 
+    max-width: 600px; 
+    margin: 30px auto 0; 
+    font-size: 1.1rem; 
+    color: rgba(255, 255, 255, 0.4); 
+}
+
+.container { padding: 50px 8%; }
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 60px 40px;
+    align-items: stretch;
+}
+
+.item-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--card-bg);
+    border: 1px solid var(--glass);
+    border-radius: 4px;
+    overflow: hidden;
+    height: 100%;
+}
+
+.media-box {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.media-box:fullscreen .item-media {
+    width: 100vw;
+    height: 100vh;
+}
+
+.media-box.custom-fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    background: #000;
+    aspect-ratio: auto;
+}
+
+.media-box.custom-fullscreen .item-media {
+    width: 100%;
+    height: 100%;
+    max-width: 100vw;
+    max-height: 100vh;
+    object-fit: contain;
+}
+
+.media-box.custom-fullscreen .btn-round {
+    background: var(--accent);
+    fill: #000;
+}
+
+.progress-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    z-index: 5;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.item-card:hover .progress-container {
+    opacity: 1;
+}
+
+.progress-bar {
+    width: 0%;
+    height: 100%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+    transition: width 0.1s linear;
+}
+        
+.item-media { 
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    filter: saturate(0); 
+    transition: 0.5s ease;
+}
+
+.item-card:hover .item-media { filter: saturate(1); transform: scale(1.02); }
+
+.card-actions {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    opacity: 0;
+    transform: translateX(10px);
+    transition: 0.3s ease;
+    z-index: 10;
+}
+
+.item-card:hover .card-actions { opacity: 1; transform: translateX(0); }
+
+.btn-round {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(0, 0, 0, 0.85); border: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: 0.2s; backdrop-filter: blur(5px); fill: white;
+}
+
+.btn-round:hover { 
+    background: var(--accent); border-color: var(--accent); fill: black; 
+    box-shadow: 0 0 15px var(--accent); 
+}
+
+.btn-round svg { width: 18px; height: 18px; }
+
+.info-panel {
+    padding: 30px;
+    background: #0a0a0a;
+    border-top: 1px solid var(--glass);
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.info-panel h3 {
+    color: var(--accent) !important;
+    text-transform: uppercase;
+    font-weight: 800;
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+}
+
+.info-panel p {
+    margin-bottom: 20px;
+    line-height: 1.8;
+}
+
+.info-panel::-webkit-scrollbar {
+    width: 4px;
+}
+
+.info-panel::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 10px;
+}
+
+footer {
+    padding: 40px 0;
+    margin-top: 50px;
+    border-top: 1px solid var(--glass);
+    background: rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.footer-content p:first-child {
+    color: var(--accent);
+    font-weight: 900;
+    letter-spacing: 2px;
+    font-size: 0.75rem;
+}
+
+.footer-content p:last-child {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+}
+
+/* site take down */
+#countdown-banner {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    border-bottom: 2px solid var(--accent);
+    padding: 15px 0;
+    text-align: center;
+    font-family: 'Inter', 'Courier New', monospace;
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+    backdrop-filter: blur(10px);
+    letter-spacing: 1px;
+}
+
+.neon-red {
+    color: var(--accent);
+    font-weight: 900;
+    text-transform: uppercase;
+    margin-right: 15px;
+    text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent);
+    letter-spacing: 4px;
+    font-size: 1.4rem;
+}
+
+#timer-clock {
+    color: #ffffff;
+    font-size: 1.4rem;
+    font-weight: 900;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+}
+
+@keyframes pulseRed {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.neon-red {
+    animation: pulseRed 2s infinite ease-in-out;
+}
+
+.lock-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #050000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000000;
+    text-align: center;
+}
+
+.lock-screen .neon-red {
+    font-size: clamp(3rem, 10vw, 8rem);
+    margin-bottom: 20px;
+    animation: flash 0.5s infinite alternate;
+}
+
+.lock-text {
+    color: white;
+    font-weight: 900;
+    letter-spacing: 5px;
+    font-size: 1.2rem;
+    opacity: 0.8;
+}
+
+.glitch-line {
+    width: 200px;
+    height: 2px;
+    background: var(--accent);
+    box-shadow: 0 0 15px var(--accent);
+}
+
+.reveal { opacity: 0; transform: translateY(30px); transition: 0.8s ease-out; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.gate-hidden { transform: translateY(-100%); pointer-events: none; }
+.main-wrapper { opacity: 0; transition: 1s; visibility: hidden; }
+.visible { opacity: 1; visibility: visible; }
+.spacer-sm { height: 10px; }
+.spacer-md { height: 30px; }
+.spacer-lg { height: 60px; }
+    </style>
+</head>
+<body>
+
+    <div id="countdown-banner">
+        <span class="neon-red">SITE TAKEDOWN: </span>
+        <span id="timer-clock">00:00:00:00</span>
+    </div>
+
+    <div id="warning-gate">
+        <h2>WARNING</h2>
+        <p>This archive contains high-sensitive content such as pedophilia restricted to people under 13 years old. Proceed with caution.</p>
+        <button class="enter-btn" onclick="enterSite()">PROCEED</button>
+    </div>
+
+    
+
+
+    <div class="main-wrapper" id="content">
+        <header>
+            <div class="reveal">
+                <h1 class="main-title">
+                    <span class="title-white">Exposing</span><br>
+                    <span class="title-red">A PEDO.</span>
+                </h1>
+                <p class="sub-description">
+                    Rockbotomguy is a british 22 years old pedophile who is talking to minors all day. <br>
+                    Here's what he has done. <br>
+                    - Taking his shirt off infront of minors. <br>
+                    - Admitting to love children. <br>
+                    - Attempting to socially assault minors. <br>
+                    <strong>Informations:</strong> <br>
+                    Name: Noah Snell <br>
+                    Age: 22 <br>
+                    Gender: Male <br>
+                    Operating System: Windows 11 <br>
+
+                    <strong> We wont share any sensitive informations since this is doxxing.</strong> <br>
+                    <strong>If you wish to remove content from here, appeal in the discord server below.</strong> <br>
+                    <strong>To upload your own files, check out https://discord.gg/rmFzg5JBjb</strong>
+                </p>
+               
+            </div>
+        </header>
+       
+
+        <main class="container">
+            <!-- <div class="spacer-md"></div> -->
+            
+            <div class="grid">
+
+                <!-- streams-->
+                <div class="item-card reveal">
+                    <div class="media-box">
+                        <div class="card-actions">
+                            <a href="https://cdn.discordapp.com/attachments/1477462085993500896/1477463005938847744/2026-02-22_13-57-32.mkv?ex=69a582e6&is=69a43166&hm=faad91e5a6819cda226a4300b637094f934f2ecef5f06b131e5e68195363ecc9&" target="_blank" download class="btn-round">
+                                <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                            </a>
+                        </div>
+        
+                        <video class="item-media" loop playsinline muted>
+                            <source src="https://cdn.discordapp.com/attachments/1477462085993500896/1477463005938847744/2026-02-22_13-57-32.mkv?ex=69a582e6&is=69a43166&hm=faad91e5a6819cda226a4300b637094f934f2ecef5f06b131e5e68195363ecc9&" type="video/mp4">
+                        </video>
+                        <div class="progress-container">
+                            <div class="progress-bar"></div>
+                        </div>
+                    </div>
+
+                    <div class="info-panel">
+                        <h3>Stream Call Footage #1</h3>
+                        <p>We joined in a call with rockbottom and asked him to turn on his camera.</p>
+                    </div>
+                </div>
+                <div class="item-card reveal">
+                    <div class="media-box">
+                        <div class="card-actions">
+                            <a href="https://cdn.discordapp.com/attachments/1477462085993500896/1477463006223925338/2026-02-22_14-00-18.mkv?ex=69a582e6&is=69a43166&hm=0e381e7a250328d683b4f4e229b13b49bf01ce298eb4a81e61995c53376163e9&" target="_blank" download class="btn-round">
+                                <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                            </a>
+                        </div>
+        
+                        <video class="item-media" loop playsinline muted>
+                            <source src="https://cdn.discordapp.com/attachments/1477462085993500896/1477463006223925338/2026-02-22_14-00-18.mkv?ex=69a582e6&is=69a43166&hm=0e381e7a250328d683b4f4e229b13b49bf01ce298eb4a81e61995c53376163e9&" type="video/mp4">
+                        </video>
+                        <div class="progress-container">
+                            <div class="progress-bar"></div>
+                        </div>
+                    </div>
+
+                    <div class="info-panel">
+                        <h3>Stream Call Footage #2</h3>
+                        <p>We joined in a call with rockbottom and asked him to turn on his camera.</p>
+                    </div>
+                </div>
+                <div class="item-card reveal">
+                    <div class="media-box">
+                        <div class="card-actions">
+                            <a href="https://cdn.discordapp.com/attachments/1477462085993500896/1477463006467063870/2026-02-22_14-00-53.mkv?ex=69a582e6&is=69a43166&hm=3f27eb856a336e1066360c22704c43e16d6e71c8e60924c290946d41165e0f29&" target="_blank" download class="btn-round">
+                                <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                            </a>
+                        </div>
+        
+                        <video class="item-media" loop playsinline muted>
+                            <source src="https://cdn.discordapp.com/attachments/1477462085993500896/1477463006467063870/2026-02-22_14-00-53.mkv?ex=69a582e6&is=69a43166&hm=3f27eb856a336e1066360c22704c43e16d6e71c8e60924c290946d41165e0f29&" type="video/mp4">
+                        </video>
+                        <div class="progress-container">
+                            <div class="progress-bar"></div>
+                        </div>
+                    </div>
+
+                    <div class="info-panel">
+                        <h3>Stream Call Footage #3</h3>
+                        <p>We joined in a call with rockbottom and asked him to turn on his camera.</p>
+                    </div>
+                </div>
+                <div class="item-card reveal">
+                    <div class="media-box">
+                        <div class="card-actions">
+                            <a href="https://cdn.discordapp.com/attachments/1477462085993500896/1477463006769184982/2026-02-22_14-03-01.mkv?ex=69a582e6&is=69a43166&hm=aa54b5dffeddfa6eabe0cd47c18c27481433477be5b4be00809ebb2349d0c3d2&" target="_blank" download class="btn-round">
+                                <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                            </a>
+                        </div>
+        
+                        <video class="item-media" loop playsinline muted>
+                            <source src="https://cdn.discordapp.com/attachments/1477462085993500896/1477463006769184982/2026-02-22_14-03-01.mkv?ex=69a582e6&is=69a43166&hm=aa54b5dffeddfa6eabe0cd47c18c27481433477be5b4be00809ebb2349d0c3d2&" type="video/mp4">
+                        </video>
+                        <div class="progress-container">
+                            <div class="progress-bar"></div>
+                        </div>
+                    </div>
+
+                    <div class="info-panel">
+                        <h3>Stream Call Footage #4</h3>
+                        <p>We joined in a call with rockbottom and asked him to turn on his camera.</p>
+                    </div>
+                </div>
+                <div class="item-card reveal">
+                    <div class="media-box">
+                        <div class="card-actions">
+                            <a href="https://cdn.discordapp.com/attachments/1477462085993500896/1477463007108792502/2026-02-22_14-05-03.mkv?ex=69a582e6&is=69a43166&hm=48d70a4034aa322eaae5718db65c03abc47c57cc1859543365ec6ec114d67286&" target="_blank" download class="btn-round">
+                                <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                            </a>
+                        </div>
+        
+                        <video class="item-media" loop playsinline muted>
+                            <source src="https://cdn.discordapp.com/attachments/1477462085993500896/1477463007108792502/2026-02-22_14-05-03.mkv?ex=69a582e6&is=69a43166&hm=48d70a4034aa322eaae5718db65c03abc47c57cc1859543365ec6ec114d67286&" type="video/mp4">
+                        </video>
+                        <div class="progress-container">
+                            <div class="progress-bar"></div>
+                        </div>
+                    </div>
+
+                    <div class="info-panel">
+                        <h3>Stream Call Footage #5</h3>
+                        <p>We joined in a call with rockbottom and asked him to turn on his camera.</p>
+                    </div>
+                </div>
+                <div class="item-card reveal">
+                    <div class="media-box">
+                        <div class="card-actions">
+                            <a href="https://cdn.discordapp.com/attachments/1477462085993500896/1477717962302423253/2026-02-28_21-34-12_2.mp4?ex=69a5c798&is=69a47618&hm=81511b3b8842a5e85a5be1ba5610a45e8a9b5d76561a833f3169227444ad17c0&" target="_blank" download class="btn-round">
+                                <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                            </a>
+                        </div>
+        
+                        <video class="item-media" loop playsinline muted>
+                            <source src="https://cdn.discordapp.com/attachments/1477462085993500896/1477717962302423253/2026-02-28_21-34-12_2.mp4?ex=69a5c798&is=69a47618&hm=81511b3b8842a5e85a5be1ba5610a45e8a9b5d76561a833f3169227444ad17c0&" type="video/mp4">
+                        </video>
+                        <div class="progress-container">
+                            <div class="progress-bar"></div>
+                        </div>
+                    </div>
+
+                    <div class="info-panel">
+                        <h3>Stream Call Footage #6</h3>
+                        <p>We joined in a call with rockbottom and asked him to turn on his camera.</p>
+                    </div>
+                </div>
+
+                <!-- custom files-->
+
+                
+                
+                
+            </div>
+        </main>
+    </div>
+
+    <script>
+    function enterSite() {
+        const gate = document.getElementById('warning-gate');
+        const content = document.getElementById('content');
+        
+        gate.classList.add('gate-hidden');
+        content.classList.add('visible');
+        document.body.style.overflow = 'auto';
+    }
+
+    const cards = document.querySelectorAll('.item-card');
+
+    cards.forEach(card => {
+        const video = card.querySelector('video');
+        const progressBar = card.querySelector('.progress-bar');
+        
+        if (video) {
+            if (progressBar) {
+                video.addEventListener('timeupdate', () => {
+                    const percentage = (video.currentTime / video.duration) * 100;
+                    progressBar.style.width = percentage + '%';
+                });
+            }
+
+            card.addEventListener('mouseenter', () => {
+                video.muted = false;
+                video.play().catch(error => {
+                    console.warn("Lecture bloquée par le navigateur :", error);
+                });
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                video.pause();
+                video.currentTime = 0;
+                if (progressBar) progressBar.style.width = '0%';
+            });
+        }
+    });
+
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+            }
+        });
+    }, { 
+        threshold: 0.1 
+    });
+
+    document.querySelectorAll('.reveal').forEach(el => {
+        revealObserver.observe(el);
+    });
+
+    const yearSpan = document.getElementById('year');
+    if (yearSpan) {
+        yearSpan.textContent = new Date().getFullYear();
+    }
+
+
+
+    function startCountdown() {
+    const targetDate = new Date("March 3, 2026 20:00:00").getTime();
+
+    const timerInterval = setInterval(function() {
+        const now = new Date().getTime();
+        const distance = targetDate - now;
+
+        if (distance <= 0) {
+            clearInterval(timerInterval);
+            document.body.innerHTML = `
+                <div class="lock-screen">
+                    <h1 class="neon-red">ACCESS DENIED</h1>
+                    <p class="lock-text">THE ARCHIVE IS NO LONGER ACCESSIBLE.</p>
+                    <div class="spacer-md"></div>
+                    <div class="glitch-line"></div>
+                </div>
+            `;
+            document.body.style.overflow = 'hidden';
+            return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        document.getElementById("timer-clock").innerHTML = 
+            days + "D " + hours + "H " + minutes + "M " + seconds + "S ";
+    }, 1000);
+}
+
+startCountdown();
+</script>
+    <footer>
+    <div class="footer-content">
+        <p>ARCHIVE VERSION [v1.1.4]</p>
+        <p>©2026 EPIKZON.</p>
+    </div>
+</footer>
+</body>
+
+</html>
